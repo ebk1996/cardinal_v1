@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { HeartIcon, UploadIcon } from "@heroicons/react/outline";
+import { BookmarkIcon } from "@heroicons/react/solid";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import React, { useEffect, useState, useCallback } from "react";
@@ -10,6 +11,7 @@ import TimeAgo from "react-timeago";
 import { auth } from "../firebase/firebase";
 import type { Comment, CommentBody, Tweet } from "../typings";
 import { fetchComments } from "../utils/fetchComments";
+import { useBookmarks } from "../utils/useBookmarks";
 
 interface Props {
   tweet: Tweet;
@@ -33,6 +35,8 @@ function Tweet({
   const [commentBoxOpen, setCommentBoxOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
   const [fakeNumbers, setFakeNumbers] = useState({ retweets: 0, likes: 0 });
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { toggleBookmark, isBookmarked: checkIfBookmarked } = useBookmarks();
 
   // Generate fake numbers only on client side to prevent hydration mismatch
   useEffect(() => {
@@ -48,9 +52,37 @@ function Tweet({
     setComments(comments);
   }, [tweet._id]);
 
+  // Check if tweet is bookmarked
+  const checkBookmarkStatus = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const bookmarked = await checkIfBookmarked(tweet._id);
+      setIsBookmarked(bookmarked);
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+    }
+  }, [tweet._id, user, checkIfBookmarked]);
+
+  // Handle bookmark toggle
+  const handleBookmark = async () => {
+    if (!user) {
+      router.push("auth/signin");
+      return;
+    }
+
+    try {
+      const newBookmarkStatus = await toggleBookmark(tweet);
+      setIsBookmarked(newBookmarkStatus);
+    } catch (error) {
+      console.error("Error toggling bookmark:", error);
+    }
+  };
+
   useEffect(() => {
     refreshComments();
-  }, [refreshComments]);
+    checkBookmarkStatus();
+  }, [refreshComments, checkBookmarkStatus]);
 
   const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
@@ -216,11 +248,31 @@ function Tweet({
         <motion.div
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className="flex cursor-pointer item-center space-x-3 text-gray-400"
+          onClick={handleBookmark}
+          className={`flex cursor-pointer item-center space-x-3 transition-colors ${
+            isBookmarked ? 'text-red-500' : 'text-gray-400'
+          }`}
         >
-          <HeartIcon className="h-5 w-5" />
+          {isBookmarked ? (
+            <BookmarkIcon className="h-5 w-5" />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"
+              />
+            </svg>
+          )}
           <p className="text-center">
-            {mounted ? fakeNumbers.likes : "0"}
+            {isBookmarked ? 'Saved' : 'Save'}
           </p>
         </motion.div>
         <motion.div

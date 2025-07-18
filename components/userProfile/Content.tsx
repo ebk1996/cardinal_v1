@@ -39,7 +39,7 @@ const Content: React.FC<ContentProps> = ({ userPName, userPhotoUrl }) => {
       `https://source.unsplash.com/1600x900/?${shuffle(bannerImage).pop()}`
     );
     setUseYear(shuffle(years).pop());
-  }, [userPName]);
+  }, [userPName, bannerImage]);
 
   /*   console.log(userPName, "yo");
   console.log(user?.displayName); */
@@ -92,7 +92,7 @@ const Content: React.FC<ContentProps> = ({ userPName, userPhotoUrl }) => {
           <img
             className="opacity-0 w-full h-full"
             src="https://source.unsplash.com/1600x900/?nature,photography,technology"
-            alt=""
+            alt="Banner background"
           />
         </div>
         <div className="p-4">
@@ -107,7 +107,7 @@ const Content: React.FC<ContentProps> = ({ userPName, userPhotoUrl }) => {
                     style={{ height: "9rem", width: "9rem" }}
                     className="md rounded-full relative border-4 border-gray-900"
                     src={userPhotoUrl}
-                    alt=""
+                    alt="Profile"
                   />
                   <div className="absolute"></div>
                 </div>

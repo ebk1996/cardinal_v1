@@ -1,19 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { motion } from "framer-motion";
 
 type DarkSwitchProps = {};
 
 const DarkSwitch: React.FC<DarkSwitchProps> = () => {
   const { setTheme, resolvedTheme, theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // useEffect only runs on the client, so now we can safely show the UI
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    // Return a placeholder during SSR and initial client render
+    return (
+      <div
+        className="group flex max-w-fit
+        cursor-pointer items-center space-x-2 rounded-full px-6 mt-6 py-3
+        transition-all duration-200 hover:bg-blue-200 dark:bg-gray-900 bg-gray-50
+        hover:scale-110 active:scale-90"
+      >
+        <div className="w-6 h-6" /> {/* Placeholder */}
+        <p className="hidden group-hover:text-twitter md:inline-flex text-base font-light">
+          Theme
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+    <div
       className="group flex max-w-fit
       cursor-pointer items-center space-x-2 rounded-full px-6 mt-6 py-3
-      transition-all duration-200 hover:bg-blue-200 dark:bg-gray-900 bg-gray-50"
+      transition-all duration-200 hover:bg-blue-200 dark:bg-gray-900 bg-gray-50
+      hover:scale-110 active:scale-90"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       {resolvedTheme === "dark" ? (
@@ -43,7 +64,7 @@ const DarkSwitch: React.FC<DarkSwitchProps> = () => {
       <p className="hidden group-hover:text-twitter md:inline-flex text-base font-light">
         {resolvedTheme === "dark" ? "Light Mod" : "Dark Mod"}
       </p>
-    </motion.div>
+    </div>
   );
 };
 export default DarkSwitch;

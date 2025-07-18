@@ -6,12 +6,13 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase/firebase";
 
 interface Props {
-  Icon: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  Icon: any;
   title: string;
   isShow?: boolean;
+  onClick?: () => void;
 }
 
-function SidebarRow({ Icon, title, isShow }: Props) {
+function SidebarRow({ Icon, title, isShow, onClick }: Props) {
   const router = useRouter();
   const [user] = useAuthState(auth);
 
@@ -27,10 +28,21 @@ function SidebarRow({ Icon, title, isShow }: Props) {
     }
   };
 
+  const handleClick = () => {
+    if (title === "Sign Out") {
+      handleSignOut();
+    } else if (title === "Sign In") {
+      handleSignIn();
+    } else if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <>
       {isShow ? (
         <div
+          onClick={handleClick}
           className="group flex max-w-fit  bg-blue-100
       cursor-pointer items-center space-x-2 rounded-full px-4 py-3
       transition-all duration-200 hover:bg-blue-200 dark:bg-gray-600 mb-1 mt-1"
@@ -42,7 +54,7 @@ function SidebarRow({ Icon, title, isShow }: Props) {
         </div>
       ) : (
         <div
-          onClick={title === "Sign Out" ? handleSignOut : handleSignIn}
+          onClick={title === "Sign Out" ? handleSignOut : title === "Sign In" ? handleSignIn : handleClick}
           className={
             title === "Sign In"
               ? `group flex max-w-fit 

@@ -10,13 +10,14 @@ import { getStorage } from "firebase/storage";
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAiUXK_0qv_UIsabR_AdLvjpnn7q9e4KUA",
-  authDomain: "tinder-clone-ce8d7.firebaseapp.com",
-  projectId: "tinder-clone-ce8d7",
-  storageBucket: "tinder-clone-ce8d7.appspot.com",
-  messagingSenderId: "1011891498066",
-  appId: "1:1011891498066:web:a9bfa9fba4ddb386f7c38b",
-  measurementId: "G-1XSRG7G0TT",
+  apiKey: "AIzaSyDPCE1GEMJ4okJUsJ3Yqy3mXNOvlC3wjVU",
+  authDomain: "zdfg-6bbb5.firebaseapp.com",
+  databaseURL: "https://zdfg-6bbb5-default-rtdb.firebaseio.com",
+  projectId: "zdfg-6bbb5",
+  storageBucket: "zdfg-6bbb5.firebasestorage.app",
+  messagingSenderId: "904688236182",
+  appId: "1:904688236182:web:d0cb12be145ec9fbab34b7",
+  measurementId: "G-65SRRX1NRS"
 };
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();

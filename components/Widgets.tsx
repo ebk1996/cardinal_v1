@@ -1,7 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { faker } from "@faker-js/faker";
 
 function Widgets() {
+  const [mounted, setMounted] = useState(false);
+  const [fakeData, setFakeData] = useState({
+    country: "Trending",
+    avatars: ["", ""],
+    names: ["User", "User", "User", "User"],
+  });
+
+  // Generate fake data only on client side to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+    setFakeData({
+      country: faker.address.country(),
+      avatars: [faker.image.avatar(), faker.image.avatar()],
+      names: [
+        faker.name.firstName(),
+        faker.name.firstName(),
+        faker.name.firstName(),
+        faker.name.firstName(),
+      ],
+    });
+  }, []);
   return (
     <div style={{ maxWidth: "350px" }}>
       <div className="overflow-y-auto fixed h-screen scrollbar-hide">
@@ -35,7 +56,7 @@ function Widgets() {
           <div className="flex">
             <div className="flex-1 m-2">
               <h2 className="px-4 py-2 text-xl w-48 font-semibold text-gray-700 dark:text-gray-200">
-                {faker.address.country()} trends
+                {mounted ? fakeData.country : "Trending"} trends
               </h2>
             </div>
             <div className="flex-1 px-4 py-2 m-2">
@@ -71,13 +92,13 @@ function Widgets() {
           <div className="flex">
             <div className="flex-1">
               <p className="px-4 ml-2 mt-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                1 . Trending
+                1 . News . Trending
               </p>
               <h2 className="px-4 ml-2 w-48 font-bold text-gray-500 dark:text-gray-200">
-                #Microsoft363
+                #ClimateAction
               </h2>
               <p className="px-4 ml-2 mb-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                5,466 Tweets
+                89.4K Tweets
               </p>
             </div>
             <div className="flex-1 px-4 py-2 m-2">
@@ -107,13 +128,13 @@ function Widgets() {
           <div className="flex">
             <div className="flex-1">
               <p className="px-4 ml-2 mt-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                2 . Politics . Trending
+                2 . Sports . Trending
               </p>
               <h2 className="px-4 ml-2 w-48 font-bold text-gray-500 dark:text-gray-200">
-                #HI-Fashion
+                #Olympics2024
               </h2>
               <p className="px-4 ml-2 mb-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                8,464 Tweets
+                156K Tweets
               </p>
             </div>
             <div className="flex-1 px-4 py-2 m-2">
@@ -143,49 +164,13 @@ function Widgets() {
           <div className="flex">
             <div className="flex-1">
               <p className="px-4 ml-2 mt-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                3 . Rock . Trending
+                3 . Technology . Trending
               </p>
               <h2 className="px-4 ml-2 w-48 font-bold text-gray-500 dark:text-gray-200">
-                #Ferrari
+                #AIRevolution
               </h2>
               <p className="px-4 ml-2 mb-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                5,586 Tweets
-              </p>
-            </div>
-            <div className="flex-1 px-4 py-2 m-2">
-              <a
-                href=""
-                className="text-2xl rounded-full text-gray-400  hover:text-blue-300 float-right"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                  />
-                </svg>
-              </a>
-            </div>
-          </div>
-          <hr className="border-gray-800" />
-
-          <div className="flex">
-            <div className="flex-1">
-              <p className="px-4 ml-2 mt-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                4 . Auto Racing . Trending
-              </p>
-              <h2 className="px-4 ml-2 w-48 font-bold text-gray-500 dark:text-gray-200">
-                #vettel
-              </h2>
-              <p className="px-4 ml-2 mb-3 w-48 text-xs text-gray-500 dark:text-gray-400">
-                9,416 Tweets
+                67.8K Tweets
               </p>
             </div>
             <div className="flex-1 px-4 py-2 m-2">
@@ -236,20 +221,18 @@ function Widgets() {
             <div className="flex-1">
               <div className="flex items-center w-48">
                 <div>
-                  <img
-                    className="inline-block h-10 w-auto rounded-full ml-4 mt-2"
-                    src={faker.image.avatar()}
-                    alt=""
-                  />
+                  <div className="h-10 w-10 rounded-full ml-4 mt-2 bg-blue-500 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
                 </div>
                 <div className="ml-3 mt-3">
                   <p className="text-base leading-6 font-medium text-gray-700 dark:text-gray-200">
-                    {faker.name.firstName()}
+                    Elon Musk ✓
                   </p>
                   <p className="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                    {"@"}
-                    {faker.name.firstName()}
+                    @elonmusk
                   </p>
+                  <p className="text-xs text-gray-400">150M followers</p>
                 </div>
               </div>
             </div>
@@ -267,19 +250,48 @@ function Widgets() {
             <div className="flex-1">
               <div className="flex items-center w-48">
                 <div>
-                  <img
-                    className="inline-block h-10 w-auto rounded-full ml-4 mt-2"
-                    src={faker.image.avatar()}
-                    alt=""
-                  />
+                  <div className="h-10 w-10 rounded-full ml-4 mt-2 bg-gray-700 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">🪨</span>
+                  </div>
                 </div>
                 <div className="ml-3 mt-3">
                   <p className="text-base leading-6 font-medium text-gray-800 dark:text-gray-200">
-                    {faker.name.firstName()}
+                    Dwayne Johnson ✓
                   </p>
                   <p className="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
-                    {"@"} {faker.name.firstName()}
+                    @TheRock
                   </p>
+                  <p className="text-xs text-gray-400">89M followers</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex-1 px-4 py-2 m-2">
+              <a href="" className="float-right">
+                <button className="bg-transparent hover:bg-gray-600 text-gray-500 font-semibold hover:text-white py-2 px-4 border border-gray-300 hover:border-transparent rounded-full dark:text-gray-300">
+                  Follow
+                </button>
+              </a>
+            </div>
+          </div>
+
+          <hr className="border-gray-800" />
+
+          <div className="flex flex-shrink-0">
+            <div className="flex-1">
+              <div className="flex items-center w-48">
+                <div>
+                  <div className="h-10 w-10 rounded-full ml-4 mt-2 bg-purple-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">👑</span>
+                  </div>
+                </div>
+                <div className="ml-3 mt-3">
+                  <p className="text-base leading-6 font-medium text-gray-800 dark:text-gray-200">
+                    Oprah Winfrey ✓
+                  </p>
+                  <p className="text-sm leading-5 font-medium text-gray-400 group-hover:text-gray-300 transition ease-in-out duration-150">
+                    @Oprah
+                  </p>
+                  <p className="text-xs text-gray-400">45M followers</p>
                 </div>
               </div>
             </div>

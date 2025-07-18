@@ -1,3 +1,4 @@
+import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import {
   CalendarIcon,
   EmojiHappyIcon,
@@ -5,8 +6,6 @@ import {
   PhotographIcon,
   SearchCircleIcon,
 } from "@heroicons/react/outline";
-import React, { Dispatch, SetStateAction, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { useAuthState } from "react-firebase-hooks/auth";
 import toast from "react-hot-toast";
 
@@ -23,6 +22,7 @@ function TweetBox({ setTweets }: Props) {
   const [input, setInput] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [imageUrlBoxOpen, setImageUrlBoxOpen] = useState<boolean>(false);
+  const [isPosting, setIsPosting] = useState<boolean>(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const addImageTweet = (
@@ -37,51 +37,83 @@ function TweetBox({ setTweets }: Props) {
   };
 
   const postTweet = async () => {
+    setIsPosting(true);
     const tweetInfo: TweetBody = {
       text: input,
       username: user?.displayName!,
       profileImg: user?.photoURL!,
       image: image,
     };
-    const result = await fetch(`api/addTweet`, {
-      body: JSON.stringify(tweetInfo),
-      method: "POST",
-    });
+    
+    try {
+      const result = await fetch(`api/addTweet`, {
+        body: JSON.stringify(tweetInfo),
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-    const json = await result.json();
+      const json = await result.json();
+      console.log('Post result:', result.status, json); // Debug log
 
-    const newTweets = await fetchTweet();
-    setTweets(newTweets);
+      if (result.ok) {
+        toast("Tweet Posted", {
+          icon: "🚀",
+        });
 
-    toast("Tweet Posted", {
-      icon: "🚀",
-    });
-    return json;
+        // Refresh tweets after a short delay
+        setTimeout(async () => {
+          try {
+            const newTweets = await fetchTweet();
+            console.log('Fetched tweets:', newTweets.length); // Debug log
+            setTweets(newTweets);
+          } catch (error) {
+            console.error('Error refreshing tweets:', error);
+          } finally {
+            setIsPosting(false);
+          }
+        }, 1500);
+      } else {
+        setIsPosting(false);
+        const errorMsg = json.message || `HTTP ${result.status}`;
+        toast.error(`Failed to post: ${errorMsg}`);
+        throw new Error(`Failed to post tweet: ${errorMsg}`);
+      }
+
+      return json;
+    } catch (error) {
+      console.error('Error posting tweet:', error);
+      toast.error("Failed to post tweet");
+      setIsPosting(false);
+      throw error;
+    }
   };
 
-  const handleSubmit = (
+  const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
   ) => {
     e.preventDefault();
 
-    postTweet();
-
-    setInput("");
-    setImage("");
-    setImageUrlBoxOpen(false);
+    try {
+      await postTweet();
+      setInput("");
+      setImage("");
+      setImageUrlBoxOpen(false);
+    } catch (error) {
+      // Don't clear the form if posting failed
+      console.error('Failed to post tweet:', error);
+    }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      viewport={{ once: true }}
+    <div
       className="flex space-x-2 p-5"
     >
       <img
         className="h-14 w-14 rounded-full object-cover mt-4"
         src={user?.photoURL!}
-        alt=""
+        alt="User profile"
       />
       <div className="flex flex-1 item-center pl-2">
         <form className="flex flex-1 flex-col">
@@ -96,9 +128,7 @@ function TweetBox({ setTweets }: Props) {
             <div className="flex flex-1 space-x-2 text-twitter">
               <PhotographIcon
                 onClick={() => setImageUrlBoxOpen(!imageUrlBoxOpen)}
-                className="h-5 w-5 cursor-pointer
-              transition-transform duration-150 ease-out
-              hover:scale-150"
+                className="h-5 w-5 cursor-pointer transition-transform duration-150 ease-out hover:scale-150"
               />
               <SearchCircleIcon className="h-5 w-5" />
               <EmojiHappyIcon className="h-5 w-5" />
@@ -107,18 +137,15 @@ function TweetBox({ setTweets }: Props) {
             </div>
             <button
               onClick={handleSubmit}
-              disabled={!input}
+              disabled={!input || isPosting}
               className="rounded-full bg-twitter px-5 py-2 font-bold text-white
               disabled:opacity-40"
             >
-              Tweet
+              {isPosting ? "Posting..." : "Tweet"}
             </button>
           </div>
           {imageUrlBoxOpen && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+            <div
               className="rounded-lg mt-5 flex bg-twitter/80 py-2 px-4"
             >
               <input
@@ -130,24 +157,21 @@ function TweetBox({ setTweets }: Props) {
               <button onClick={addImageTweet} className="font-bold text-white">
                 Add Image
               </button>
-            </motion.div>
+            </div>
           )}
           {image && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
+            <div
             >
               <img
                 className="mt-10 h-40 w-full rounded-xl object-contain shadow-lg"
                 src={image}
                 alt="image/tweet"
               />
-            </motion.div>
+            </div>
           )}
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

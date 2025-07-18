@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/router";
 import {
   BellIcon,
   HashtagIcon,
@@ -23,24 +24,41 @@ type SideBarProps = {
 
 const SideBar: React.FC<SideBarProps> = ({ isShow, isHome }) => {
   const [user] = useAuthState(auth);
+  const router = useRouter();
+
+  // Navigation handlers for each sidebar item
+  const handleHomeClick = () => router.push("/");
+  const handleExploreClick = () => router.push("/explore");
+  const handleNotificationsClick = () => router.push("/notifications");
+  const handleMessagesClick = () => router.push("/messages");
+  const handleBookmarksClick = () => router.push("/bookmarks");
+  const handleListsClick = () => router.push("/lists");
+  const handleProfileClick = () => {
+    if (user) {
+      router.push("/profile");
+    }
+  };
+  const handleMoreClick = () => console.log("More clicked - implement more options");
+
   return (
     <div className="col-span-2 flex flex-col item-center px-4 md:items-start">
       <img
         className="m-3 h-10 w-10"
-        src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Twitter-logo.svg/1200px-Twitter-logo.svg.png"
-        alt=""
+        src="https://cardinal-images.s3.us-west-1.amazonaws.com/titanium_logo-transparent.jpg"
+        alt="Logo"
       />
-      <SidebarRow Icon={HomeIcon} title="Home" isShow={isHome} />
-      <SidebarRow Icon={HashtagIcon} title="Explore" />
-      <SidebarRow Icon={BellIcon} title="Notifications" />
-      <SidebarRow Icon={MailIcon} title="Messages" />
-      <SidebarRow Icon={BookmarkIcon} title="Bookmarks" />
-      <SidebarRow Icon={CollectionIcon} title="Lists" />
+      <SidebarRow Icon={HomeIcon} title="Home" isShow={isHome} onClick={handleHomeClick} />
+      <SidebarRow Icon={HashtagIcon} title="Explore" onClick={handleExploreClick} />
+      <SidebarRow Icon={BellIcon} title="Notifications" onClick={handleNotificationsClick} />
+      <SidebarRow Icon={MailIcon} title="Messages" onClick={handleMessagesClick} />
+      <SidebarRow Icon={BookmarkIcon} title="Bookmarks" onClick={handleBookmarksClick} />
+      <SidebarRow Icon={CollectionIcon} title="Lists" onClick={handleListsClick} />
       {isShow ? (
         <SidebarRow
           Icon={user ? UserIcon : UserSecond}
           title="Profile"
           isShow={isShow}
+          onClick={handleProfileClick}
         />
       ) : (
         <SidebarRow
@@ -49,7 +67,7 @@ const SideBar: React.FC<SideBarProps> = ({ isShow, isHome }) => {
           isShow={false}
         />
       )}
-      <SidebarRow Icon={DotsCircleHorizontalIcon} title="More" />
+      <SidebarRow Icon={DotsCircleHorizontalIcon} title="More" onClick={handleMoreClick} />
       <DarkSwitch />
     </div>
   );

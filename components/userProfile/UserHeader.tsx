@@ -18,7 +18,7 @@ const UserHeader: React.FC<UserHeaderProps> = ({ userPName, userPhotoUrl }) => {
                 <img
                   className="inline-block h-10 w-10 rounded-full"
                   src={userPhotoUrl}
-                  alt=""
+                  alt="Profile"
                 />
               </div>
               <div className="ml-3">

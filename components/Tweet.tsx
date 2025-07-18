@@ -2,13 +2,13 @@ import { faker } from "@faker-js/faker";
 import { HeartIcon, UploadIcon } from "@heroicons/react/outline";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import toast from "react-hot-toast";
 import TimeAgo from "react-timeago";
 
 import { auth } from "../firebase/firebase";
-import { Comment, CommentBody, Tweet } from "../typings";
+import type { Comment, CommentBody, Tweet } from "../typings";
 import { fetchComments } from "../utils/fetchComments";
 
 interface Props {
@@ -31,15 +31,26 @@ function Tweet({
   const [comments, setComments] = useState<Comment[]>([]);
   const [input, setInput] = useState<string>("");
   const [commentBoxOpen, setCommentBoxOpen] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
+  const [fakeNumbers, setFakeNumbers] = useState({ retweets: 0, likes: 0 });
 
-  const refreshComments = async () => {
+  // Generate fake numbers only on client side to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+    setFakeNumbers({
+      retweets: faker.datatype.number({ min: 10, max: 500 }),
+      likes: faker.datatype.number({ min: 10, max: 500 }),
+    });
+  }, []);
+
+  const refreshComments = useCallback(async () => {
     const comments: Comment[] = await fetchComments(tweet._id);
     setComments(comments);
-  };
+  }, [tweet._id]);
 
   useEffect(() => {
     refreshComments();
-  }, []);
+  }, [refreshComments]);
 
   const handleSubmit = async (
     e: React.MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
@@ -91,7 +102,7 @@ function Tweet({
       setUserPName(tweet.username);
       setUserPhotoUrl(tweet.profileImg);
     } else return;
-  }, [tweet]);
+  }, [tweet, userName, setUserPName, setUserPhotoUrl]);
 
   /*   const handleSignIn = async () => {
     router.push("/auth/signin");
@@ -199,7 +210,7 @@ function Tweet({
           </svg>
 
           <p className="text-center">
-            {faker.datatype.number({ min: 10, max: 500 })}
+            {mounted ? fakeNumbers.retweets : "0"}
           </p>
         </motion.div>
         <motion.div
@@ -209,7 +220,7 @@ function Tweet({
         >
           <HeartIcon className="h-5 w-5" />
           <p className="text-center">
-            {faker.datatype.number({ min: 10, max: 500 })}
+            {mounted ? fakeNumbers.likes : "0"}
           </p>
         </motion.div>
         <motion.div
@@ -269,7 +280,7 @@ function Tweet({
                   <img
                     src={comment.profileImg}
                     className="mt-2 h-7 w-7 rounded-full object-cover"
-                    alt=""
+                    alt="Comment profile"
                   />
                   <div>
                     <div className="flex items-center space-x-l">
